@@ -1,0 +1,40 @@
+program: python
+command:
+  - ${program}
+  - /data/ephemeral/home/kjh/level2-cv-datacentric-cv-16/train_wandb_sweep.py
+  - "--device=cuda"
+  - "--num_workers=8"
+  - "--max_epoch=50" #직접 max_epoch 지정
+
+# 50에폭 기준으로 세부 인자들을 줄인 상태임 - 에폭 바꾸면 train 코드에서 바꿔줘야 함
+
+method: bayes
+name: ocr-optimization-v3
+metric:
+  name: loss
+  goal: minimize
+
+parameters:
+  learning_rate:
+    min: 0.0001
+    max: 0.01
+    distribution: log_uniform
+
+  batch_size:
+    values: [2, 4, 8]
+
+  optimizer_type:
+    values: ['adam', 'adamw', 'radam', 'sgd']
+
+  weight_decay:
+    min: 0.0001
+    max: 0.01
+    distribution: log_uniform
+
+  scheduler_type:
+    values: ['cosine', 'cosine_warm', 'one_cycle', 'multistep', 'reduce_on_plateau']
+
+early_terminate:
+  type: hyperband
+  min_iter: 20
+  eta: 2
